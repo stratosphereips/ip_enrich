@@ -89,71 +89,82 @@ class IP():
         self.processedvtdata['country'] = 'None'
         self.processedvtdata['detected_urls'] = 'None'
         self.processedvtdata['detected_communicating_samples'] = 'None'
+        self.processedvtdata['detected_referrer_samples'] = 'None'
         self.processedvtdata['resolutions'] = 'None'
         for key in self.vtdata:
             if 'detected_downloaded_samples' in key:
-                self.processedvtdata['detected_downloaded_samples'] = self.vtdata[key]
-                # Sort and reverse the keys
-                # Store the samples in our dictionary so we can sort them
-                temp_dict = {}
-                for detected_dowload_item in self.processedvtdata['detected_downloaded_samples']:
-                    temp_dict[detected_dowload_item['date']] = [detected_dowload_item['positives'], detected_dowload_item['total'], detected_dowload_item['sha256']]
-                # Sort them by datetime and convert to list
-                self.processedvtdata['detected_downloaded_samples'] = sorted(temp_dict.items(), reverse=True)
+                if self.vtdata[key]:
+                    self.processedvtdata['detected_downloaded_samples'] = self.vtdata[key]
+                    # Sort and reverse the keys
+                    # Store the samples in our dictionary so we can sort them
+                    temp_dict = {}
+                    for detected_dowload_item in self.processedvtdata['detected_downloaded_samples']:
+                        temp_dict[detected_dowload_item['date']] = [detected_dowload_item['positives'], detected_dowload_item['total'], detected_dowload_item['sha256']]
+                    # Sort them by datetime and convert to list
+                    self.processedvtdata['detected_downloaded_samples'] = sorted(temp_dict.items(), reverse=True)
             elif 'as_owner' in key:
-                self.processedvtdata['as_owner'] = self.vtdata[key]
+                if self.vtdata[key]:
+                    self.processedvtdata['as_owner'] = self.vtdata[key]
             elif 'asn' in key:
-                self.processedvtdata['asn'] = self.vtdata[key]
+                if self.vtdata[key]:
+                    self.processedvtdata['asn'] = self.vtdata[key]
             elif 'detected_referrer_samples' in key:
-                self.processedvtdata['detected_referrer_samples'] = self.vtdata[key]
-                # {'positives': 1, 'total': 53, 'sha256': '5d4c6801a5d1c9e4d3f8317242723e17eefc7fbdfcf1b0a99fbc5b92b4b83631'}
-                # Sort and reverse the keys
-                # Store the samples in our dictionary so we can sort them
-                temp_dict = {}
-                for detected_referrer_item in self.processedvtdata['detected_referrer_samples']:
-                    temp_dict[detected_referrer_item['sha256']] = [detected_referrer_item['positives'], detected_referrer_item['total']]
-                # Sort them by datetime and convert to list
-                self.processedvtdata['detected_referrer_samples'] = sorted(temp_dict.items(), reverse=True)
+                if self.vtdata[key]:
+                    self.processedvtdata['detected_referrer_samples'] = self.vtdata[key]
+                    # {'positives': 1, 'total': 53, 'sha256': '5d4c6801a5d1c9e4d3f8317242723e17eefc7fbdfcf1b0a99fbc5b92b4b83631'}
+                    # Sort and reverse the keys
+                    # Store the samples in our dictionary so we can sort them
+                    temp_dict = {}
+                    for detected_referrer_item in self.processedvtdata['detected_referrer_samples']:
+                        temp_dict[detected_referrer_item['sha256']] = [detected_referrer_item['positives'], detected_referrer_item['total']]
+                    # Sort them by datetime and convert to list
+                    self.processedvtdata['detected_referrer_samples'] = sorted(temp_dict.items(), reverse=True)
             elif 'country' in key:
-                self.processedvtdata['country'] = self.vtdata[key]
+                if self.vtdata[key]:
+                    self.processedvtdata['country'] = self.vtdata[key]
             elif 'detected_urls' in key:
-                self.processedvtdata['detected_urls'] = self.vtdata[key]
-                # Sort and reverse the keys
-                # Store the urls in our dictionary so we can sort them
-                temp_dict = {}
-                for detected_url_item in self.processedvtdata['detected_urls']:
-                    if type(detected_url_item) == dict:
-                        # Some items are dicts
-                        # {'url': 'http://willbshots.com/images', 'positives': 11, 'total': 91, 'scan_date': '2021-10-24 08:37:40'}
-                        temp_dict[detected_url_item['scan_date']] = [detected_url_item['url'], detected_url_item['positives'], detected_url_item['total']]
-                    elif type(detected_url_item) == list:
-                        # an item is usually
-                        # ['http://alltidrenbil.no/', '09151b5f41955ac8eafe5296408c6407e69538a9d3c1546386d2b3e5dbdbe603', 0, 91, '2021-10-24 09:08:58']
-                        temp_dict[detected_url_item[4]] = [detected_url_item[0], detected_url_item[2], detected_url_item[3]]
-                # Sort them by datetime and convert to list
-                self.processedvtdata['detected_urls'] = sorted(temp_dict.items(), reverse=True)
+                if self.vtdata[key]:
+                    self.processedvtdata['detected_urls'] = self.vtdata[key]
+                    # Sort and reverse the keys
+                    # Store the urls in our dictionary so we can sort them
+                    temp_dict = {}
+                    for detected_url_item in self.processedvtdata['detected_urls']:
+                        if type(detected_url_item) == dict:
+                            # Some items are dicts
+                            # {'url': 'http://willbshots.com/images', 'positives': 11, 'total': 91, 'scan_date': '2021-10-24 08:37:40'}
+                            temp_dict[detected_url_item['scan_date']] = [detected_url_item['url'], detected_url_item['positives'], detected_url_item['total']]
+                        elif type(detected_url_item) == list:
+                            # an item is usually
+                            # ['http://alltidrenbil.no/', '09151b5f41955ac8eafe5296408c6407e69538a9d3c1546386d2b3e5dbdbe603', 0, 91, '2021-10-24 09:08:58']
+                            temp_dict[detected_url_item[4]] = [detected_url_item[0], detected_url_item[2], detected_url_item[3]]
+                    # Sort them by datetime and convert to list
+                    self.processedvtdata['detected_urls'] = sorted(temp_dict.items(), reverse=True)
             elif 'detected_communicating_samples' in key:
-                self.processedvtdata['detected_communicating_samples'] = self.vtdata[key]
-                # Sort and reverse the keys
-                # Store the samples in our dictionary so we can sort them
-                temp_dict = {}
-                for detected_communicating_item in self.processedvtdata['detected_communicating_samples']:
-                    temp_dict[detected_communicating_item['date']] = [detected_communicating_item['positives'], detected_communicating_item['total'], detected_communicating_item['sha256']]
-                # Sort them by datetime and convert to list
-                self.processedvtdata['detected_communicating_samples'] = sorted(temp_dict.items(), reverse=True)
+                if self.vtdata[key]:
+                    self.processedvtdata['detected_communicating_samples'] = self.vtdata[key]
+                    # Sort and reverse the keys
+                    # Store the samples in our dictionary so we can sort them
+                    temp_dict = {}
+                    for detected_communicating_item in self.processedvtdata['detected_communicating_samples']:
+                        temp_dict[detected_communicating_item['date']] = [detected_communicating_item['positives'], detected_communicating_item['total'], detected_communicating_item['sha256']]
+                    # Sort them by datetime and convert to list
+                    self.processedvtdata['detected_communicating_samples'] = sorted(temp_dict.items(), reverse=True)
             elif 'resolutions' in key:
-                self.processedvtdata['resolutions'] = self.vtdata[key]
-                # Sort and reverse the keys
-                # Store the resolutions in our dictionary so we can sort them
-                temp_dict = {}
-                for resolution_item in self.processedvtdata['resolutions']:
-                    temp_dict[resolution_item['last_resolved']] = resolution_item['hostname']
-                # Sort them by datetime and convert to list
-                self.processedvtdata['resolutions'] = sorted(temp_dict.items(), reverse=True)
+                if self.vtdata[key]:
+                    self.processedvtdata['resolutions'] = self.vtdata[key]
+                    # Sort and reverse the keys
+                    # Store the resolutions in our dictionary so we can sort them
+                    temp_dict = {}
+                    for resolution_item in self.processedvtdata['resolutions']:
+                        temp_dict[resolution_item['last_resolved']] = resolution_item['hostname']
+                    # Sort them by datetime and convert to list
+                    self.processedvtdata['resolutions'] = sorted(temp_dict.items(), reverse=True)
             elif 'response_code' in key:
-                self.processedvtdata['response_code'] = self.vtdata[key]
+                if self.vtdata[key]:
+                    self.processedvtdata['response_code'] = self.vtdata[key]
             elif 'verbose_msg' in key:
-                self.processedvtdata['verbose_msg'] = self.vtdata[key]
+                if self.vtdata[key]:
+                    self.processedvtdata['verbose_msg'] = self.vtdata[key]
             else:
                 # Unknown key
                 print(f'Unknown Key: {key}')
@@ -177,6 +188,7 @@ class IP():
 
         # Print vt urls. Is a list
         if self.processedvtdata['detected_urls'] != 'None':
+            print(self.processedvtdata['detected_urls'])
             output += f'VT URLs (top {args.amount_to_print}, sorted by datetime):\n'
             for count, url_tuple in enumerate(self.processedvtdata['detected_urls']):
                 if count >= args.amount_to_print:
