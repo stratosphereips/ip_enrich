@@ -5,14 +5,15 @@ import argparse
 import requests
 #from requests.auth import HTTPBasicAuth
 import datetime
-#from argparse import ArgumentParser
+import collections
 #import re
 import sys
 import json
-#import urllib3
+import urllib3
 import os
 import pprint
 import time
+import certifi
 
 
 class IP():
@@ -22,16 +23,13 @@ class IP():
     def __init__(self, ip):
         self.ip = ip
         self.vtkey = None
+        self.http = urllib3.PoolManager(cert_reqs="CERT_REQUIRED", ca_certs=certifi.where())
         try:
             with open('vt_credentials', "r") as f:
                 self.key = f.read(64)
         except FileNotFoundError:
             self.print("The file with API key (vt_credentials) could not be loaded. VT module is stopping.")
-
-
-    def __repr__(self):
-        output = f'IP: {self.ip}'
-        return output
+            return False
 
     def getVT(self):
         # Get VirusTotal data
@@ -78,7 +76,53 @@ class IP():
             if type(data) == list:
                 # this is an empty list, vt dometimes returns it with status code 200
                 data = {}
+        # Everything fine
+        self.vtdata = data
 
+    def processVT(self):
+        # Process vt data
+        self.processedvtdata = {}
+        for key in self.vtdata:
+            #print(f'Key: {key}')
+            #print(self.vtdata[key])
+            #print
+            if 'detected_downloaded_samples' in key:
+                self.processedvtdata['detected_downloaded_samples'] = self.vtdata[key]
+            elif 'as_owner' in key:
+                self.processedvtdata['as_owner'] = self.vtdata[key]
+            elif 'detected_referrer_samples' in key:
+                self.processedvtdata['detected_referrer_samples'] = self.vtdata[key]
+            elif 'country' in key:
+                self.processedvtdata['country'] = self.vtdata[key]
+            elif 'detected_urls' in key:
+                self.processedvtdata['detected_urls'] = self.vtdata[key]
+            elif 'detected_communicating_samples' in key:
+                self.processedvtdata['detected_communicating_samples'] = self.vtdata[key]
+            elif 'resolutions' in key:
+                self.processedvtdata['resolutions'] = self.vtdata[key]
+                # Sort and reverse the keys
+                # Store the resolutions in our dictionary so we can sort them
+                temp_dict = {}
+                for resolution_item in self.processedvtdata['resolutions']:
+                    temp_dict[resolution_item['last_resolved']] = resolution_item['hostname']
+                # Sort them by datetime and convert to list
+                self.processedvtdata['resolutions'] = sorted(temp_dict.items(), reverse=True)
+        del self.vtdata
+
+    def __repr__(self):
+        """
+        Print the object
+        """
+        pp = pprint.PrettyPrinter(width=60, compact=True)
+        output = f'IP: {self.ip}\n'
+
+        # Print vt resolutions. Is a list
+        output += f'VT Resolutions (top {args.amount_to_print}):\n'
+        for count, resolution_tuple in enumerate(self.processedvtdata['resolutions']):
+            output += f'\t{resolution_tuple[0]}: {resolution_tuple[1]}\n'
+            if count >= args.amount_to_print:
+                break
+        return output
 
 
 if __name__ == '__main__':
@@ -86,6 +130,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', dest='output', help='Output a log file. Json', action='store_true', required=False)
     parser.add_argument('-v', dest='verbosity', help='Verbosity level.', default=1, required=False, type=int)
     parser.add_argument('-i', dest='ip', help='IP to enrich.', default=1, required=True, type=str)
+    parser.add_argument('-m', dest='amount_to_print', help='How many lines to print per catetory max.', default=10, required=False, type=int)
 
     args = parser.parse_args()
 
@@ -95,6 +140,8 @@ if __name__ == '__main__':
 
     # Contact VT and get data
     ipobj.getVT()
+    # Process VT data
+    ipobj.processVT()
 
     print(ipobj)
     
