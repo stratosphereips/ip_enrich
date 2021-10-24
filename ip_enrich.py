@@ -3,11 +3,7 @@
 
 import argparse
 import requests
-#from requests.auth import HTTPBasicAuth
 import datetime
-import collections
-#import re
-import sys
 import json
 from json import JSONDecodeError
 import urllib3
@@ -15,6 +11,7 @@ import os
 import pprint
 import time
 import certifi
+import socket
 
 
 class IP():
@@ -28,6 +25,13 @@ class IP():
         try:
             with open('vt_credentials', "r") as f:
                 self.key = f.read(64)
+        except FileNotFoundError:
+            self.print("The file with API key (vt_credentials) could not be loaded. VT module is stopping.")
+            return False
+        try:
+            with open('pt_credentials', "r") as f:
+                self.ptuser = f.readline().split(' =')[1].strip()
+                self.ptkey = f.readline().split(' =')[1].strip()
         except FileNotFoundError:
             self.print("The file with API key (vt_credentials) could not be loaded. VT module is stopping.")
             return False
@@ -79,6 +83,31 @@ class IP():
                 data = {}
         # Everything fine
         self.vtdata = data
+
+    def getRDNS(self):
+        """
+        Get the reverse DNS
+        """
+        self.reversedns = ''
+        try:
+            # works with both ipv4 and ipv6
+            reverse_dns = socket.gethostbyaddr(self.ip)[0]
+            # if there's no reverse dns record for this ip, reverse_dns will be an ip.
+            if ':' in self.ip:
+                socket_type = socket.AF_INET6
+            else:
+                socket_type = socket.AF_INET
+
+            try:
+                # reverse_dns is an ip and there's no reverse dns, don't store
+                socket.inet_pton(socket_type, reverse_dns)
+                return False
+            except socket.error:
+                # all good, store it
+                self.reversedns = reverse_dns
+        except (socket.gaierror, socket.herror, OSError):
+            # not an ip or multicast, can't get the reverse dns record of it
+            return False
 
     def processVT(self):
         # Process vt data
@@ -171,53 +200,102 @@ class IP():
                 print(self.vtdata[key])
         del self.vtdata
 
+    def getPT(self):
+        """
+        Get Passive total data
+        """
+        command = "curl -m 20 --insecure -s -u " + self.ptuser + ":" + self.ptkey + " 'https://api.riskiq.net/pt/v2/dns/passive?query=" + self.ip + "'"
+        temp = os.popen(command).read()
+        try:
+            self.processedptdata = json.loads(temp)
+        except json.decoder.JSONDecodeError:
+            self.processedptdata = None
+
     def __repr__(self):
         """
         Print the object
         """
         pp = pprint.PrettyPrinter(width=60, compact=True)
-        output = f'IP: {self.ip}. Country: {self.processedvtdata["country"]}. AS Org: {self.processedvtdata["as_owner"]}\n'
+        output = f'IP: {self.ip}. '
+        try:
+            output += f'Country: {self.processedvtdata["country"]}. '
+        except AttributeError:
+            pass
+        try:
+            output += f'AS Org: {self.processedvtdata["as_owner"]}. '
+        except AttributeError:
+            pass
+        try:
+            output += f'RDNS: {self.reversedns}. '
+        except AttributeError:
+            pass
+        output += '\n'
         
         # Print vt resolutions. Is a list
-        if self.processedvtdata['resolutions'] != 'None':
-            output += f'VT Resolutions (top {args.amount_to_print}, sorted by datetime):\n'
-            for count, resolution_tuple in enumerate(self.processedvtdata['resolutions']):
-                if count >= args.amount_to_print:
-                    break
-                output += f'\t{resolution_tuple[0]}: {resolution_tuple[1]}\n'
+        try:
+            if self.processedvtdata['resolutions'] != 'None':
+                output += f'VT Resolutions (top {args.amount_to_print}, sorted by datetime):\n'
+                for count, resolution_tuple in enumerate(self.processedvtdata['resolutions']):
+                    if count >= args.amount_to_print:
+                        break
+                    output += f'\t{resolution_tuple[0]}: {resolution_tuple[1]}\n'
+        except AttributeError:
+            pass
 
         # Print vt urls. Is a list
-        if self.processedvtdata['detected_urls'] != 'None':
-            print(self.processedvtdata['detected_urls'])
-            output += f'VT URLs (top {args.amount_to_print}, sorted by datetime):\n'
-            for count, url_tuple in enumerate(self.processedvtdata['detected_urls']):
-                if count >= args.amount_to_print:
-                    break
-                output += f'\t{url_tuple[0]}: {url_tuple[1][0]}. Positives: {url_tuple[1][1]}/{url_tuple[1][2]}\n'
+        try:
+            if self.processedvtdata['detected_urls'] != 'None':
+                output += f'VT URLs (top {args.amount_to_print}, sorted by datetime):\n'
+                for count, url_tuple in enumerate(self.processedvtdata['detected_urls']):
+                    if count >= args.amount_to_print:
+                        break
+                    output += f'\t{url_tuple[0]}: {url_tuple[1][0]}. Positives: {url_tuple[1][1]}/{url_tuple[1][2]}\n'
+        except AttributeError:
+            pass
 
         # Print vt detected communicating samples. Is a list
-        if self.processedvtdata['detected_communicating_samples'] != 'None':
-            output += f'VT Detected Communicating Samples (top {args.amount_to_print}, sorted by datetime):\n'
-            for count, communcating_tuple in enumerate(self.processedvtdata['detected_communicating_samples']):
-                if count >= args.amount_to_print:
-                    break
-                output += f'\t{communcating_tuple[0]}: Positives: {communcating_tuple[1][0]}, Total: {communcating_tuple[1][1]}, SHA256: {communcating_tuple[1][2]}\n'
+        try:
+            if self.processedvtdata['detected_communicating_samples'] != 'None':
+                output += f'VT Detected Communicating Samples (top {args.amount_to_print}, sorted by datetime):\n'
+                for count, communcating_tuple in enumerate(self.processedvtdata['detected_communicating_samples']):
+                    if count >= args.amount_to_print:
+                        break
+                    output += f'\t{communcating_tuple[0]}: Positives: {communcating_tuple[1][0]}, Total: {communcating_tuple[1][1]}, SHA256: {communcating_tuple[1][2]}\n'
+        except AttributeError:
+            pass
 
         # Print vt detected downloaded samples. Is a list
-        if self.processedvtdata['detected_downloaded_samples'] != 'None':
-            output += f'VT Detected Downloaded Samples (top {args.amount_to_print}, sorted by datetime):\n'
-            for count, detected_tuple in enumerate(self.processedvtdata['detected_downloaded_samples']):
-                if count >= args.amount_to_print:
-                    break
-                output += f'\t{detected_tuple[0]}: Positives: {detected_tuple[1][0]}, Total: {detected_tuple[1][1]}, SHA256: {detected_tuple[1][2]}\n'
+        try:
+            if self.processedvtdata['detected_downloaded_samples'] != 'None':
+                output += f'VT Detected Downloaded Samples (top {args.amount_to_print}, sorted by datetime):\n'
+                for count, detected_tuple in enumerate(self.processedvtdata['detected_downloaded_samples']):
+                    if count >= args.amount_to_print:
+                        break
+                    output += f'\t{detected_tuple[0]}: Positives: {detected_tuple[1][0]}, Total: {detected_tuple[1][1]}, SHA256: {detected_tuple[1][2]}\n'
+        except AttributeError:
+            pass
 
         # Print vt referrer downloaded samples. Is a list
-        if self.processedvtdata['detected_referrer_samples'] != 'None':
-            output += f'VT Detected Referrer Samples (top {args.amount_to_print}, sorted by sha):\n'
-            for count, referrer_tuple in enumerate(self.processedvtdata['detected_referrer_samples']):
+        try:
+            if self.processedvtdata['detected_referrer_samples'] != 'None':
+                output += f'VT Detected Referrer Samples (top {args.amount_to_print}, sorted by sha):\n'
+                for count, referrer_tuple in enumerate(self.processedvtdata['detected_referrer_samples']):
+                    if count >= args.amount_to_print:
+                        break
+                    output += f'\t{referrer_tuple[0]}: Positives: {referrer_tuple[1][0]}, Total: {referrer_tuple[1][1]}\n'
+        except AttributeError:
+            pass
+
+        # Print pt data
+        if self.processedptdata:
+            count = 0
+            output += f'PassiveTotal Data (top {args.amount_to_print}, sorted by time). '
+            output += f'\tFirst Seen: {self.processedptdata["firstSeen"]}. Last Seen: {self.processedptdata["lastSeen"]}. Records: {self.processedptdata["totalRecords"]}\n'
+            for result in self.processedptdata['results']:
+                output += f'\tHostname: {result["resolve"]:45}. FirstSeen: {result["firstSeen"]}. LastSeen: {result["lastSeen"]}\n'
                 if count >= args.amount_to_print:
                     break
-                output += f'\t{referrer_tuple[0]}: Positives: {referrer_tuple[1][0]}, Total: {referrer_tuple[1][1]}\n'
+                count += 1
 
         return output
 
@@ -239,6 +317,10 @@ if __name__ == '__main__':
     ipobj.getVT()
     # Process VT data
     ipobj.processVT()
+    # Get reverse DNS
+    ipobj.getRDNS()
+    # Get passivetotal
+    ipobj.getPT()
 
     print(ipobj)
     
