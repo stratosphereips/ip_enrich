@@ -1,6 +1,8 @@
 # Stratosphere IP enrich
 Get an IP address and enrich it with metadata and IoC
 
+You need API keys for VirusTotal and PassiveTotal (RiskIQ)
+
 
 ## Example run
 
