@@ -208,6 +208,13 @@ class IP():
         temp = os.popen(command).read()
         try:
             self.processedptdata = json.loads(temp)
+            # Sort and reverse the keys
+            # Store the samples in our dictionary so we can sort them
+            temp_dict = {}
+            for pt_results in self.processedptdata['results']:
+                temp_dict[pt_results['lastSeen']] = [pt_results['firstSeen'], pt_results['resolve'], pt_results['collected']]
+            # Sort them by datetime and convert to list
+            self.processedptdata_results = sorted(temp_dict.items(), reverse=True)
         except json.decoder.JSONDecodeError:
             self.processedptdata = None
 
@@ -289,10 +296,10 @@ class IP():
         # Print pt data
         if self.processedptdata:
             count = 0
-            output += f'PassiveTotal Data (top {args.amount_to_print}, sorted by time). '
+            output += f'PassiveTotal Data (top {args.amount_to_print}, sorted by lastSeen). '
             output += f'\tFirst Seen: {self.processedptdata["firstSeen"]}. Last Seen: {self.processedptdata["lastSeen"]}. Records: {self.processedptdata["totalRecords"]}\n'
-            for result in self.processedptdata['results']:
-                output += f'\tHostname: {result["resolve"]:45}. FirstSeen: {result["firstSeen"]}. LastSeen: {result["lastSeen"]}\n'
+            for result in self.processedptdata_results:
+                output += f'\tLastSeen: {result[0]}. FirstSeen: {result[1][0]}. Hostname: {result[1][1]}. \n'
                 if count >= args.amount_to_print:
                     break
                 count += 1
