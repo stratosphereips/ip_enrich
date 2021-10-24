@@ -203,7 +203,6 @@ class IP():
         if self.processedvtdata['detected_referrer_samples'] != 'None':
             output += f'VT Detected Referrer Samples (top {args.amount_to_print}, sorted by sha):\n'
             for count, referrer_tuple in enumerate(self.processedvtdata['detected_referrer_samples']):
-                print(referrer_tuple)
                 if count >= args.amount_to_print:
                     break
                 output += f'\t{referrer_tuple[0]}: Positives: {referrer_tuple[1][0]}, Total: {referrer_tuple[1][1]}\n'
