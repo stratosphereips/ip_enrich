@@ -3,6 +3,18 @@ Get an IP address and enrich it with metadata and IoC
 
 You need API keys for VirusTotal and PassiveTotal (RiskIQ)
 
+## How to use from your python
+
+```
+#!/usr/bin/env python3
+import ip_enrich
+
+ip = '1.1.1.1'
+
+ipobj = ip_enrich.IP(ip, 10)
+ipobj.getAll()
+print(ipobj)
+```
 
 ## Example run
 
@@ -77,3 +89,10 @@ PassiveTotal Data (top 10, sorted by lastSeen). 	First Seen: 2011-02-12 13:38:44
 	LastSeen: 2021-10-23 22:31:11. FirstSeen: 2019-11-18 03:45:15. Hostname: www.vitalsource.com.ag.
 	LastSeen: 2021-10-23 22:30:45. FirstSeen: 2020-04-08 09:12:44. Hostname: test.prod.einstein.ai.
 ```
+
+
+
+## TODO
+
+- Implement https://api.riskiq.net/api/ssl/
+- Implement https://api.riskiq.net/api/blacklist/
