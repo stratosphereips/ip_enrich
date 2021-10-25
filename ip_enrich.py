@@ -12,29 +12,63 @@ import pprint
 import time
 import certifi
 import socket
+import sys
 
 
 class IP():
     """
     Class to manage all the IP data
     """
-    def __init__(self, ip, amount_to_print=10):
+    def __init__(self, ip, amount_to_print=10, verbose=10):
         self.ip = ip
         self.amount_to_print = amount_to_print
         self.vtkey = None
+        self.data = []
         self.http = urllib3.PoolManager(cert_reqs="CERT_REQUIRED", ca_certs=certifi.where())
+        # Create the DB
+        self.create_folder()
         try:
-            with open('vt_credentials', "r") as f:
+            file = os.path.expanduser("~") + '/.ip_enrich/vt_credentials'
+            with open(file, "r") as f:
                 self.key = f.read(64)
+            self.vtapi = True
         except FileNotFoundError:
-            self.print("The file with API key (vt_credentials) could not be loaded. VT module is stopping.")
-            return False
+            print("The file with API keys of VirusTotal could not be loaded.")
+            print("Create the file ~/.ip_enrich/vt_credentials, and add the API string.")
+            self.vtapi = False
+            # It may be possible to use VT without credentials, not impemented yet
+            sys.exit(-1)
+
         try:
-            with open('pt_credentials', "r") as f:
+            file = os.path.expanduser("~") + '/.ip_enrich/pt_credentials'
+            with open(file, "r") as f:
                 self.ptuser = f.readline().split(' =')[1].strip()
                 self.ptkey = f.readline().split(' =')[1].strip()
+            self.ptapi = True
         except FileNotFoundError:
-            self.print("The file with API key (vt_credentials) could not be loaded. VT module is stopping.")
+            print("The file with API keys of PassiveTotal could not be loaded.")
+            print("Create a file in ~/.ip_enrich/pt_credentials, and add the following data.")
+            print('\tRiskIQ_email = <email>')
+            print('\tRiskIQ_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+            print('Go here for a free account https://community.riskiq.com/login')
+            self.ptapi = False
+            # It is not possible to use PT without credentials
+            sys.exit(-1)
+
+    def create_folder(self):
+        """
+        Create the folder for the DB and credentials
+        """
+        path = os.path.expanduser('~') + "/.ip_enrich/"
+        # Does it exist already?
+        if os.path.isdir(path):
+            return True
+        try:
+            os.mkdir(path)
+            return True
+        except Exception as e:
+            print (f"Creation of the directory {path} failed")
+            print (f"Error {e}")
             return False
 
     def getAll(self):
@@ -52,13 +86,15 @@ class IP():
 
     def getVT(self):
         # Get VirusTotal data
+        if not self.vtapi:
+            return False
         params = {'apikey': self.key}
-        self.url = 'https://www.virustotal.com/vtapi/v2/ip-address/report'
+        self.vturl = 'https://www.virustotal.com/vtapi/v2/ip-address/report'
         params.update({'ip': self.ip})
 
         while True:
             try:
-                response = self.http.request("GET", self.url, fields=params)
+                response = self.http.request("GET", self.vturl, fields=params)
                 break
             except urllib3.exceptions.MaxRetryError:
                 self.print("Network is not available, waiting 10s")
@@ -218,10 +254,13 @@ class IP():
         """
         Get Passive total data
         """
-        command = "curl -m 20 --insecure -s -u " + self.ptuser + ":" + self.ptkey + " 'https://api.riskiq.net/pt/v2/dns/passive?query=" + self.ip + "'"
+        if not self.ptapi:
+            return False
+        command = "curl -m 25 --insecure -s -u " + self.ptuser + ":" + self.ptkey + " 'https://api.riskiq.net/pt/v2/dns/passive?query=" + self.ip + "'"
         temp = os.popen(command).read()
         try:
             self.processedptdata = json.loads(temp)
+            self.processedptdata_results = None
             # Sort and reverse the keys
             # Store the samples in our dictionary so we can sort them
             temp_dict = {}
@@ -332,16 +371,25 @@ if __name__ == '__main__':
 
     # Check if is a real ip or not
     ipaddress = args.ip
-    ipobj = IP(ipaddress, args.amount_to_print)
+    ipobj = IP(ipaddress, args.amount_to_print, args.verbosity)
 
     # Contact VT and get data
+    if args.verbosity > 0:
+        print('[+] Getting the VirusTotal data')
     ipobj.getVT()
     # Process VT data
+    if args.verbosity > 0:
+        print('[+] Processing the VirusTotal data')
     ipobj.processVT()
     # Get reverse DNS
+    if args.verbosity > 0:
+        print('[+] Getting the reverse DNS data')
     ipobj.getRDNS()
     # Get passivetotal
+    if args.verbosity > 0:
+        print('[+] Getting the PassiveTotal data')
     ipobj.getPT()
 
+    print()
     print(ipobj)
     
