@@ -32,7 +32,7 @@ print(ipobj)
 [+] Getting the reverse DNS data
 [+] Getting the PassiveTotal data
 [+] Getting the Geolocation data
-[+] Getting the PassiveTotal Blacklist
+[+] Getting the Shodan data
 
 IP: 1.1.1.1. Country: AU. AS Org: CLOUDFLARENET. RDNS: one.one.one.one.
 GeoIP Data
@@ -57,27 +57,27 @@ VT Resolutions (top 10, sorted by datetime):
 	2021-10-14 23:20:50: 0000jb.com
 	2021-10-12 07:54:09: 0.0stage.breadapp.com
 VT URLs (top 10, sorted by datetime):
+	2021-11-05 17:33:05: http://www.besthotel360.com:1219/001/puppet.Txt?77142. Positives: 1/93
+	2021-11-05 16:40:17: http://shenzhengyunde.com/wp-content/plugins/Citrus. Positives: 9/93
+	2021-11-05 15:43:12: http://fabianomeroete.gettrials.com/. Positives: 6/93
+	2021-11-05 15:10:52: http://korberpie8p6f.servebeer.com/us.html?2Nf8zJ4oH8vPvwUyzhQhY1mO30thIH7MBanBtDZCBtbkNl979971JntUZqTSO6czexqILCwJ2bfvAVECgtX7aNEeQpjIsWc8FF5K_4_2Nf8zJ4oH8vPvwUyzhQhY1mO30thIH7MBanBtDZCBtbkNl979971JntUZqTSO6czexqILCwJ2bfvAVECgtX7aNEeQpjIsWc8FF5K_4. Positives: 4/93
 	2021-11-05 14:22:16: http://www.besthotel360.com:1219/001/puppet.Txt?80044. Positives: 1/93
 	2021-11-05 14:02:45: http://1.1.1.1/positron/discovery. Positives: 1/93
 	2021-11-05 13:04:53: http://thee.network/. Positives: 12/93
-	2021-11-05 12:22:22: http://shenzhengyunde.com/wp-content/plugins/Citrus. Positives: 9/92
-	2021-11-05 11:26:00: http://fabianomeroete.gettrials.com/. Positives: 7/92
 	2021-11-05 10:11:49: http://www.besthotel360.com:1219/001/puppet.Txt?82118. Positives: 1/92
 	2021-11-05 08:22:00: http://chetverg.xyz/. Positives: 7/92
 	2021-11-05 06:09:04: http://www.besthotel360.com:1219/001/puppet.Txt?97687. Positives: 1/92
-	2021-11-05 04:22:23: http://shenzhengyunde.com/. Positives: 7/92
-	2021-11-05 03:20:50: http://kingslanddomain.ddns.net/. Positives: 9/93
 VT Detected Communicating Samples (top 10, sorted by datetime):
-	2021-11-05 14:13:24: Positives: 0, Total: 0, SHA256: 9c18ab3a341e5978c37293254fac5a42ed4eaf0e77ab6ebf7da794a82af36c03
-	2021-11-05 13:59:27: Positives: 0, Total: 73, SHA256: 4443209ffc27fb07aa1f982aa6ddb2158b248ae60df614cd6aea5fbcba6ef3d7
-	2021-11-05 12:49:00: Positives: 0, Total: 0, SHA256: 19ea8212533ba082d8aeca408c4bce9d267162386498d511c763592ba1015244
-	2021-11-05 11:42:28: Positives: 0, Total: 0, SHA256: e7f5db6bd5309656c7c62f2f5f6acb1e6d93fec4c589392bd66ffd9e8516519b
-	2021-11-05 10:54:38: Positives: 0, Total: 0, SHA256: 925f0c4e06d5c95b3123ad1c725e962f31e34b5a3adacb175cc0e8ed30c31b8b
-	2021-11-05 10:54:03: Positives: 0, Total: 0, SHA256: a73317ad3671e11a070a8b4d1bb9ce9400c5de4108d83d430e89f53cc2a4a3b4
-	2021-11-05 10:24:54: Positives: 0, Total: 0, SHA256: 932c649d2db5c298dad64fa1f4d98c76e3e0e6951a3d475a9a7adf45399eec3f
-	2021-11-05 09:43:57: Positives: 0, Total: 72, SHA256: 9caa88c6ccec642fa388c9b2b690270f638b5b7a09bf07464cb7575f987c860b
-	2021-11-05 08:45:21: Positives: 0, Total: 0, SHA256: 752a51fa289044cd82af6cdc52ff30a7f39f5cfc8b9edd103b4c4e2dbbeb7e53
-	2021-11-05 08:35:38: Positives: 0, Total: 0, SHA256: 25aa50c23d173bd732860d1793931b4d08d7f63f6dc7bb8c963da18acfbdb2ab
+	2021-11-05 18:11:24: Positives: 0, Total: 0, SHA256: f6390d83e5684b3dd5d4b6db71bfd7573a8eb0edcacf548cfb4715ae74eb0ac6
+	2021-11-05 18:06:05: Positives: 0, Total: 0, SHA256: e9cbf160213511551b8af68f47e30a7bbca16ef707abb790ee7673cce1a786a4
+	2021-11-05 17:57:04: Positives: 0, Total: 0, SHA256: d713e22c9bab1cc73d79f4ea7131ef8cc6ede776b9192474997c50000706b392
+	2021-11-05 17:56:14: Positives: 0, Total: 0, SHA256: d4f684092f42598823dc6f9c1a4cf68576924c1700b5d05ae302d0604bd5e21c
+	2021-11-05 17:48:25: Positives: 0, Total: 0, SHA256: c39706d752096fa39c44d7f438477721e6ff2cefec04b76ee88808c897d3a4d9
+	2021-11-05 17:39:28: Positives: 0, Total: 0, SHA256: adf74bfffcc53e48b4cf4d89839daeb63a6dfefe06c19298f653b3af8bcff5a3
+	2021-11-05 17:33:42: Positives: 0, Total: 0, SHA256: 9f48278ecaff72c29f49eb8daa39d99c45369edaae6326da594af7097737a01c
+	2021-11-05 17:26:55: Positives: 0, Total: 0, SHA256: 8f0847c175118ed8b533bb5669a90f51c41905e11ec2e04e96741ab2d75f1ce7
+	2021-11-05 17:25:59: Positives: 0, Total: 0, SHA256: 8cf24462e9dfdd1aa558c51ee3d91b0da913caf2929debad1d3559a854fc2e61
+	2021-11-05 17:19:06: Positives: 0, Total: 0, SHA256: 7da6df949060f6825614f2a08ae687889f2764391b2e8d0941ed68ce26199cff
 VT Detected Downloaded Samples (top 10, sorted by datetime):
 	2021-09-20 09:51:51: Positives: 1, Total: 72, SHA256: 2c141c06f7df57f11ef2c62f2a96093484a65df47065b1a475c53784af0e2664
 	2021-06-26 17:08:59: Positives: 7, Total: 74, SHA256: 8ad3794b215df1a4eaf1325a90a4357ad93476c9308b4e820e325d50eba50280
@@ -100,18 +100,25 @@ VT Detected Referrer Samples (top 10, sorted by sha):
 	e220b8b5afe2745bd3a92d1d961fe5bb7bc06b02a0046c7a9e3bde06b8e2ad02: Positives: 0, Total: 53
 	e1f818767ba2c60a77d172da8bb31fd6e46a7291331568c00fe59877012b55cb: Positives: 0, Total: 54
 	e17a0261a12397547696519d748e0756d95c2fe694fa8399179a3aaad4f075cb: Positives: 0, Total: 53
-PassiveTotal Data (top 10, sorted by lastSeen). 	First Seen: 2011-02-12 13:38:44. Last Seen: 2021-11-05 05:51:50. Records: 55
-	LastSeen: 2021-11-05 05:51:50. FirstSeen: 2021-05-25 11:31:39. Hostname: sentri360.ai.
-	LastSeen: 2021-11-05 04:46:44. FirstSeen: 2019-09-23 18:55:18. Hostname: go.eye4.ai.
-	LastSeen: 2021-11-05 04:42:02. FirstSeen: 2018-03-15 07:31:10. Hostname: malettigroup.am.
-	LastSeen: 2021-11-05 04:41:29. FirstSeen: 2020-04-08 09:12:44. Hostname: test.prod.einstein.ai.
-	LastSeen: 2021-11-05 04:41:02. FirstSeen: 2020-04-02 14:27:02. Hostname: fullstory.ai.
-	LastSeen: 2021-11-05 04:36:37. FirstSeen: 2021-05-04 05:21:03. Hostname: dev.connected-fleet.ai.
-	LastSeen: 2021-11-05 04:03:49. FirstSeen: 2019-05-08 22:30:26. Hostname: ns3.ui.am.
-	LastSeen: 2021-11-05 04:00:46. FirstSeen: 2021-05-25 17:21:36. Hostname: auth.sentri360.ai.
-	LastSeen: 2021-11-05 03:54:18. FirstSeen: 2021-05-31 20:54:08. Hostname: stg.connected-fleet.ai.
-	LastSeen: 2021-11-05 03:48:30. FirstSeen: 2011-02-12 13:38:44. Hostname: ns1.dot.ad.
-	LastSeen: 2021-11-05 03:45:40. FirstSeen: 2021-04-04 10:29:45. Hostname: zimbra.softamer.com.ar.
+PassiveTotal Data (top 10, sorted by lastSeen). 	First Seen: 2011-02-12 13:38:44. Last Seen: 2021-11-05 09:52:46. Records: 55
+	LastSeen: 2021-11-05 09:52:46. FirstSeen: 2021-05-25 11:31:39. Hostname: sentri360.ai.
+	LastSeen: 2021-11-05 08:07:03. FirstSeen: 2021-06-11 04:15:47. Hostname: yunxuetang.ai.
+	LastSeen: 2021-11-05 08:05:51. FirstSeen: 2020-01-08 20:33:20. Hostname: tant.al.
+	LastSeen: 2021-11-05 07:57:48. FirstSeen: 2020-11-02 07:10:20. Hostname: salgado.com.ar.
+	LastSeen: 2021-11-05 07:43:27. FirstSeen: 2016-03-08 21:26:03. Hostname: lewicki.com.ar.
+	LastSeen: 2021-11-05 07:25:37. FirstSeen: 2020-12-06 20:19:25. Hostname: azmedia.com.ar.
+	LastSeen: 2021-11-05 07:24:52. FirstSeen: 2021-06-30 18:20:49. Hostname: prueba.cammesa.com.ar.
+	LastSeen: 2021-11-05 07:20:14. FirstSeen: 2016-02-09 17:22:21. Hostname: df.eaglemobile.al.
+	LastSeen: 2021-11-05 07:12:50. FirstSeen: 2021-06-13 12:42:09. Hostname: test.trovo.ai.
+	LastSeen: 2021-11-05 07:06:27. FirstSeen: 2018-05-20 00:00:50. Hostname: links.rakbank.ae.
+	LastSeen: 2021-11-05 06:43:54. FirstSeen: 2021-02-17 01:16:25. Hostname: kgs.am.
+Shodan Data. 	Tags: []
+	Domains: ['one.one']
+	Hostnames ['one.one.one.one']
+	Org APNIC and Cloudflare DNS Resolver project
+	Last update 2021-11-05T17:58:53.742055
+	Ports [80, 443, 53]
+
 ```
 
 
