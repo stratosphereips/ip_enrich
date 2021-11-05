@@ -14,6 +14,7 @@ import certifi
 import socket
 import sys
 import subprocess
+import shodan
 
 
 class IP():
@@ -31,11 +32,24 @@ class IP():
         try:
             file = os.path.expanduser("~") + '/.ip_enrich/vt_credentials'
             with open(file, "r") as f:
-                self.key = f.read(64)
+                self.vtkey = f.read(64)
             self.vtapi = True
         except FileNotFoundError:
             print("The file with API keys of VirusTotal could not be loaded.")
             print("Create the file ~/.ip_enrich/vt_credentials, and add the API string.")
+            self.vtapi = False
+            # It may be possible to use VT without credentials, not impemented yet
+            sys.exit(-1)
+
+        try:
+            file = os.path.expanduser("~") + '/.ip_enrich/shodan_credentials'
+            with open(file, "r") as f:
+                key = str(f.read(33)).strip() 
+                self.shodanobj = shodan.Shodan(key)
+            self.shodanapi = True
+        except FileNotFoundError:
+            print("The file with API keys of Shodan could not be loaded.")
+            print("Create the file ~/.ip_enrich/shodan_credentials, and add the API string.")
             self.vtapi = False
             # It may be possible to use VT without credentials, not impemented yet
             sys.exit(-1)
@@ -104,7 +118,7 @@ class IP():
         # Get VirusTotal data
         if not self.vtapi:
             return False
-        params = {'apikey': self.key}
+        params = {'apikey': self.vtkey}
         self.vturl = 'https://www.virustotal.com/vtapi/v2/ip-address/report'
         params.update({'ip': self.ip})
 
@@ -267,6 +281,45 @@ class IP():
                 print(self.vtdata[key])
         del self.vtdata
 
+    def getPTBL(self):
+        """
+        Get passive total black list data
+        NOT WORKING BECAUSE WE DONT HAVE THE AUTH API
+        """
+        if not self.ptapi:
+            return False
+        command = "curl -m 25 --insecure -s -u " + self.ptuser + ":" + self.ptkey + " 'https://api.riskiq.net/v0/blacklist/lookup?url=" + self.ip + "'"
+
+        temp = os.popen(command).read()
+        try:
+            self.processedptbl = json.loads(temp)
+            print(self.processedptbl)
+            """
+            self.processedptbl_results = None
+            # Sort and reverse the keys
+            # Store the samples in our dictionary so we can sort them
+            temp_dict = {}
+            for pt_results in self.processedptdata['results']:
+                temp_dict[pt_results['lastSeen']] = [pt_results['firstSeen'], pt_results['resolve'], pt_results['collected']]
+            # Sort them by datetime and convert to list
+            self.processedptdata_results = sorted(temp_dict.items(), reverse=True)
+            """
+        except json.decoder.JSONDecodeError:
+            self.processedptbl = None
+
+    def getShodan(self):
+        """
+        Get Shodan data
+        """
+        if not self.shodanapi:
+            return False
+
+        # Lookup an IP
+        # With history is crazy more data!!! up to 2.8MB per ip
+        #self.shodandata = self.shodanapi.host(self.ip, history=True)
+
+        self.shodandata = self.shodanobj.host(self.ip)
+
     def getPT(self):
         """
         Get Passive total data
@@ -308,12 +361,12 @@ class IP():
         except KeyError:
             data['rdns'] = 'None'
 
-        # Print geodata
+        # geodata
         #{"status":"success","country":"Yemen","countryCode":"YE","region":"SA","regionName":"Amanat Alasimah","city":"Sanaa","zip":"","lat":15.3522,"lon":44.2095,"timezone":"Asia/Aden","isp":"Public Telecommunication Corporation","org":"YemenNet","as":"AS30873 Public Telecommunication Corporation","query":"134.35.218.63"}
         if self.geodata:
             data['geodata'] = self.geodata
         
-        # Print vt resolutions. Is a list
+        # vt resolutions. Is a list
         data['vt'] = {}
         try:
             if self.processedvtdata['resolutions'] != 'None':
@@ -328,7 +381,7 @@ class IP():
         except KeyError:
             pass
 
-        # Print vt urls. Is a list
+        # vt urls. Is a list
         try:
             if self.processedvtdata['detected_urls'] != 'None':
                 data['vt']['detected_urls'] = []
@@ -344,7 +397,7 @@ class IP():
             pass
 
 
-        # Print vt detected communicating samples. Is a list
+        # vt detected communicating samples. Is a list
         try:
             if self.processedvtdata['detected_communicating_samples'] != 'None':
                 data['vt']['detected_communicating_samples'] = []
@@ -359,7 +412,7 @@ class IP():
         except AttributeError:
             pass
 
-        # Print vt detected downloaded samples. Is a list
+        # vt detected downloaded samples. Is a list
         try:
             if self.processedvtdata['detected_downloaded_samples'] != 'None':
                 data['vt']['detected_downloaded_samples'] = []
@@ -374,7 +427,7 @@ class IP():
         except AttributeError:
             pass
 
-        # Print vt referrer downloaded samples. Is a list
+        # vt referrer downloaded samples. Is a list
         try:
             if self.processedvtdata['detected_referrer_samples'] != 'None':
                 data['vt']['detected_referrer_samples'] = []
@@ -388,7 +441,7 @@ class IP():
         except AttributeError:
             pass
 
-        # Print pt data
+        # pt data
         data['pt'] = {}
         if self.processedptdata:
             count = 0
@@ -403,9 +456,15 @@ class IP():
                 data['pt']['passive_dns'].append(temp)
                 count += 1
 
+        # shodan data
+        try:
+            if self.shodandata:
+                data['shodan'] = self.shodandata
+        except AttributeError:
+            pass
+
         data = json.dumps(data)
         return data
-
 
     def __repr__(self):
         """
@@ -507,6 +566,17 @@ class IP():
                     break
                 count += 1
 
+        # Pring shodan data
+        if self.shodandata:
+            output += f'Shodan Data. '
+            output += f'\tTags: {self.shodandata["tags"]}\n'
+            output += f'\tDomains: {self.shodandata["domains"]}\n'
+            output += f'\tHostnames {self.shodandata["hostnames"]}\n'
+            output += f'\tOrg {self.shodandata["org"]}\n'
+            output += f'\tLast update {self.shodandata["last_update"]}\n'
+            output += f'\tPorts {self.shodandata["ports"]}\n'
+            #output += f'\tTimestamp {self.shodandata["data"]["timestamp"]}\n'
+            #output += f'\t\tISP {self.shodandata["data"]["isp"]}\n'
 
         return output
 
@@ -545,8 +615,12 @@ if __name__ == '__main__':
         print('[+] Getting the Geolocation data')
     ipobj.getGeo()
     # Get PassiveTotal blacklist
+    #if args.verbosity > 0:
+        #print('[+] Getting the PassiveTotal Blacklist')
+    #ipobj.getPTBL()
     if args.verbosity > 0:
-        print('[+] Getting the PassiveTotal Blacklist')
+        print('[+] Getting the Shodan data')
+    ipobj.getShodan()
 
     if args.output:
         with open(args.output, 'w+') as f:
