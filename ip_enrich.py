@@ -15,6 +15,7 @@ import socket
 import sys
 import subprocess
 import shodan
+from shodan.exception import APIError
 
 
 class IP():
@@ -111,7 +112,11 @@ class IP():
         command = f'curl -s -m 5 http://ip-api.com/json/' + self.ip
         result = subprocess.run(command.split(), capture_output=True)
         data = result.stdout.decode("utf-8").replace('\n','')
-        data = json.loads(data)
+        try:
+            data = json.loads(data)
+        except json.decoder.JSONDecodeError:
+            # Error from ip-api.com
+            data = None
         if data:
             # {"status":"success","country":"Yemen","countryCode":"YE","region":"SA","regionName":"Amanat Alasimah","city":"Sanaa","zip":"","lat":15.3522,"lon":44.2095,"timezone":"Asia/Aden","isp":"Public Telecommunication Corporation","org":"YemenNet","as":"AS30873 Public Telecommunication Corporation","query":"134.35.218.63"}
             self.geodata = data
@@ -320,7 +325,11 @@ class IP():
         # With history is crazy more data!!! up to 2.8MB per ip
         #self.shodandata = self.shodanapi.host(self.ip, history=True)
 
-        self.shodandata = self.shodanobj.host(self.ip)
+        try:
+            self.shodandata = self.shodanobj.host(self.ip)
+        except shodan.exception.APIError:
+            #print(f'No shodan results for IP: {self.ip}')
+            self.shodandata = None
 
     def getPT(self):
         """
