@@ -3,6 +3,13 @@ Get an IP address and enrich it with metadata and IoC
 
 You need API keys for VirusTotal and PassiveTotal (RiskIQ)
 
+
+## Features
+
+- Extract VirusTotal data
+- Extract PassiveTotal data
+- Extract GeoIP data
+
 ## How to use from your python
 
 ```
@@ -16,44 +23,61 @@ ipobj.getAll()
 print(ipobj)
 ```
 
-## Example run
+## Example run in command line
 
 ```
 ./ip_enrich.py -i 1.1.1.1
+[+] Getting the VirusTotal data
+[+] Processing the VirusTotal data
+[+] Getting the reverse DNS data
+[+] Getting the PassiveTotal data
+[+] Getting the Geolocation data
+[+] Getting the PassiveTotal Blacklist
+
 IP: 1.1.1.1. Country: AU. AS Org: CLOUDFLARENET. RDNS: one.one.one.one.
+GeoIP Data
+	Country: Australia (AU)
+	RegionName: Queensland QLD
+	City: South Brisbane
+	Lat: -27.4766
+	Lon: 153.0166
+	TZ: Australia/Brisbane
+	isp: Cloudflare, Inc
+	Org: APNIC and Cloudflare DNS Resolver project
+	AS: AS13335 Cloudflare, Inc.
 VT Resolutions (top 10, sorted by datetime):
+	2021-11-02 14:00:51: 0002049.xyz
+	2021-11-02 06:33:27: 055353.com
+	2021-10-28 00:52:26: 0.0www.breadapp.com
+	2021-10-28 00:52:25: 0.0.0www.breadapp.com
 	2021-10-22 10:14:54: 01eeda8e7e38183e5676cbabe5b8b11e.19f7f31a1a944816d5f44d89024aff48.h.i.ydscan.net
 	2021-10-18 13:55:09: 0-v-0.xyz
 	2021-10-15 17:32:42: 0.0token.breadapp.com
 	2021-10-15 17:32:41: 0.0.0token.breadapp.com
 	2021-10-14 23:20:50: 0000jb.com
 	2021-10-12 07:54:09: 0.0stage.breadapp.com
-	2021-10-12 07:54:08: 0.0.0stage.breadapp.com
-	2021-10-12 07:54:07: 0.0.0.0stage.breadapp.com
-	2021-09-26 08:05:51: 0214.tech
-	2021-09-22 18:25:03: 0.s.cf
 VT URLs (top 10, sorted by datetime):
-	2021-10-24 11:06:08: http://yyyzzyyyzyzyzyzzyyzzzyyyyzzyzyzzyyzzyzyzzyzzyyyzyzdeu-neu10.goserials.cc/?hgilp53885. Positives: 15/91
-	2021-10-24 10:00:09: http://www.besthotel360.com:1219/001/puppet.Txt?78125. Positives: 1/91
-	2021-10-24 09:43:14: http://www.besthotel360.com:1219/001/puppet.Txt?82664. Positives: 1/91
-	2021-10-24 08:37:40: http://willbshots.com/images. Positives: 11/91
-	2021-10-24 06:51:07: https://i7saan.com/. Positives: 2/91
-	2021-10-24 06:02:04: http://www.besthotel360.com:1219/001/puppet.Txt?83054. Positives: 1/91
-	2021-10-24 04:10:06: http://doormouse.net/ldlkdsd/mweb/mweb.php?email=andyyorke@mweb.co.za. Positives: 16/91
-	2021-10-24 03:58:37: http://korberpie8p6f.servebeer.com/fb.png. Positives: 3/91
-	2021-10-23 23:30:17: http://thee.network/. Positives: 12/92
-	2021-10-23 22:40:39: http://www.besthotel360.com:1219/001/puppet.Txt?84240. Positives: 1/91
+	2021-11-05 14:22:16: http://www.besthotel360.com:1219/001/puppet.Txt?80044. Positives: 1/93
+	2021-11-05 14:02:45: http://1.1.1.1/positron/discovery. Positives: 1/93
+	2021-11-05 13:04:53: http://thee.network/. Positives: 12/93
+	2021-11-05 12:22:22: http://shenzhengyunde.com/wp-content/plugins/Citrus. Positives: 9/92
+	2021-11-05 11:26:00: http://fabianomeroete.gettrials.com/. Positives: 7/92
+	2021-11-05 10:11:49: http://www.besthotel360.com:1219/001/puppet.Txt?82118. Positives: 1/92
+	2021-11-05 08:22:00: http://chetverg.xyz/. Positives: 7/92
+	2021-11-05 06:09:04: http://www.besthotel360.com:1219/001/puppet.Txt?97687. Positives: 1/92
+	2021-11-05 04:22:23: http://shenzhengyunde.com/. Positives: 7/92
+	2021-11-05 03:20:50: http://kingslanddomain.ddns.net/. Positives: 9/93
 VT Detected Communicating Samples (top 10, sorted by datetime):
-	2021-10-24 11:06:58: Positives: 0, Total: 0, SHA256: 113908d90d09dc4383bb9f704960ea773e5924e5e5e2dad5f4c7051f889bf392
-	2021-10-24 10:46:26: Positives: 0, Total: 0, SHA256: 7a47bd5ad3cf05dc254d78f9f16e0abaeda3e5c7611390c9fc92ddb6d1bc19c5
-	2021-10-24 10:41:11: Positives: 0, Total: 0, SHA256: bf8b9723262f48b1e47d347d487d455766eed2d9208d11436e91e2123efe492b
-	2021-10-24 10:06:00: Positives: 0, Total: 0, SHA256: 0a45108ead20ab510e9244dc6baedf82d247fe085f14581c8a93b613e071d6e1
-	2021-10-24 09:31:57: Positives: 0, Total: 73, SHA256: 0e77ffd3893eff206b2b19497951b394e13434f65217a60d84b311c6144ebe3c
-	2021-10-24 08:39:51: Positives: 0, Total: 0, SHA256: 4be104f3d27c7df1f3bb228fecf65e4f5a1a26f2cabe155d8999c773f5b5412b
-	2021-10-24 07:51:25: Positives: 0, Total: 74, SHA256: 3efc4eaf71ba84c4bd64ad1272dfd56e197915b68382911a9afe1b6fb2cb6616
-	2021-10-24 06:39:47: Positives: 0, Total: 0, SHA256: f503f6fbe90d11ebe350fb0fd339573012c9fe14517f8dd210b127ab3ca77fbc
-	2021-10-24 06:01:17: Positives: 0, Total: 0, SHA256: 1e73b10c8787d4c5555cbfc6047e35ffe561a8f77d0ddcdd1e4987f5500df66e
-	2021-10-24 05:02:57: Positives: 0, Total: 0, SHA256: 1097e1dec420c608afbe1b557c5844df93c24716adeadd163ac0772bed38079e
+	2021-11-05 14:13:24: Positives: 0, Total: 0, SHA256: 9c18ab3a341e5978c37293254fac5a42ed4eaf0e77ab6ebf7da794a82af36c03
+	2021-11-05 13:59:27: Positives: 0, Total: 73, SHA256: 4443209ffc27fb07aa1f982aa6ddb2158b248ae60df614cd6aea5fbcba6ef3d7
+	2021-11-05 12:49:00: Positives: 0, Total: 0, SHA256: 19ea8212533ba082d8aeca408c4bce9d267162386498d511c763592ba1015244
+	2021-11-05 11:42:28: Positives: 0, Total: 0, SHA256: e7f5db6bd5309656c7c62f2f5f6acb1e6d93fec4c589392bd66ffd9e8516519b
+	2021-11-05 10:54:38: Positives: 0, Total: 0, SHA256: 925f0c4e06d5c95b3123ad1c725e962f31e34b5a3adacb175cc0e8ed30c31b8b
+	2021-11-05 10:54:03: Positives: 0, Total: 0, SHA256: a73317ad3671e11a070a8b4d1bb9ce9400c5de4108d83d430e89f53cc2a4a3b4
+	2021-11-05 10:24:54: Positives: 0, Total: 0, SHA256: 932c649d2db5c298dad64fa1f4d98c76e3e0e6951a3d475a9a7adf45399eec3f
+	2021-11-05 09:43:57: Positives: 0, Total: 72, SHA256: 9caa88c6ccec642fa388c9b2b690270f638b5b7a09bf07464cb7575f987c860b
+	2021-11-05 08:45:21: Positives: 0, Total: 0, SHA256: 752a51fa289044cd82af6cdc52ff30a7f39f5cfc8b9edd103b4c4e2dbbeb7e53
+	2021-11-05 08:35:38: Positives: 0, Total: 0, SHA256: 25aa50c23d173bd732860d1793931b4d08d7f63f6dc7bb8c963da18acfbdb2ab
 VT Detected Downloaded Samples (top 10, sorted by datetime):
 	2021-09-20 09:51:51: Positives: 1, Total: 72, SHA256: 2c141c06f7df57f11ef2c62f2a96093484a65df47065b1a475c53784af0e2664
 	2021-06-26 17:08:59: Positives: 7, Total: 74, SHA256: 8ad3794b215df1a4eaf1325a90a4357ad93476c9308b4e820e325d50eba50280
@@ -76,18 +100,18 @@ VT Detected Referrer Samples (top 10, sorted by sha):
 	e220b8b5afe2745bd3a92d1d961fe5bb7bc06b02a0046c7a9e3bde06b8e2ad02: Positives: 0, Total: 53
 	e1f818767ba2c60a77d172da8bb31fd6e46a7291331568c00fe59877012b55cb: Positives: 0, Total: 54
 	e17a0261a12397547696519d748e0756d95c2fe694fa8399179a3aaad4f075cb: Positives: 0, Total: 53
-PassiveTotal Data (top 10, sorted by lastSeen). 	First Seen: 2011-02-12 13:38:44. Last Seen: 2021-10-24 02:36:11. Records: 91
-	LastSeen: 2021-10-24 02:36:11. FirstSeen: 2019-06-03 09:00:54. Hostname: test.rappi.com.ar.
-	LastSeen: 2021-10-24 00:23:50. FirstSeen: 2021-02-24 23:57:05. Hostname: rm.am.
-	LastSeen: 2021-10-24 00:14:35. FirstSeen: 2021-06-11 04:15:47. Hostname: yunxuetang.ai.
-	LastSeen: 2021-10-23 23:55:17. FirstSeen: 2019-05-08 22:30:26. Hostname: ns3.ui.am.
-	LastSeen: 2021-10-23 23:44:02. FirstSeen: 2021-04-04 23:49:01. Hostname: gh.al.
-	LastSeen: 2021-10-23 23:21:22. FirstSeen: 2018-03-15 07:31:10. Hostname: malettigroup.am.
-	LastSeen: 2021-10-23 23:11:27. FirstSeen: 2020-07-22 04:03:45. Hostname: wlan.siemens.co.ae.
-	LastSeen: 2021-10-23 22:38:06. FirstSeen: 2021-04-04 10:29:45. Hostname: zimbra.softamer.com.ar.
-	LastSeen: 2021-10-23 22:34:09. FirstSeen: 2017-02-20 06:09:31. Hostname: opdivo.com.ar.
-	LastSeen: 2021-10-23 22:31:11. FirstSeen: 2019-11-18 03:45:15. Hostname: www.vitalsource.com.ag.
-	LastSeen: 2021-10-23 22:30:45. FirstSeen: 2020-04-08 09:12:44. Hostname: test.prod.einstein.ai.
+PassiveTotal Data (top 10, sorted by lastSeen). 	First Seen: 2011-02-12 13:38:44. Last Seen: 2021-11-05 05:51:50. Records: 55
+	LastSeen: 2021-11-05 05:51:50. FirstSeen: 2021-05-25 11:31:39. Hostname: sentri360.ai.
+	LastSeen: 2021-11-05 04:46:44. FirstSeen: 2019-09-23 18:55:18. Hostname: go.eye4.ai.
+	LastSeen: 2021-11-05 04:42:02. FirstSeen: 2018-03-15 07:31:10. Hostname: malettigroup.am.
+	LastSeen: 2021-11-05 04:41:29. FirstSeen: 2020-04-08 09:12:44. Hostname: test.prod.einstein.ai.
+	LastSeen: 2021-11-05 04:41:02. FirstSeen: 2020-04-02 14:27:02. Hostname: fullstory.ai.
+	LastSeen: 2021-11-05 04:36:37. FirstSeen: 2021-05-04 05:21:03. Hostname: dev.connected-fleet.ai.
+	LastSeen: 2021-11-05 04:03:49. FirstSeen: 2019-05-08 22:30:26. Hostname: ns3.ui.am.
+	LastSeen: 2021-11-05 04:00:46. FirstSeen: 2021-05-25 17:21:36. Hostname: auth.sentri360.ai.
+	LastSeen: 2021-11-05 03:54:18. FirstSeen: 2021-05-31 20:54:08. Hostname: stg.connected-fleet.ai.
+	LastSeen: 2021-11-05 03:48:30. FirstSeen: 2011-02-12 13:38:44. Hostname: ns1.dot.ad.
+	LastSeen: 2021-11-05 03:45:40. FirstSeen: 2021-04-04 10:29:45. Hostname: zimbra.softamer.com.ar.
 ```
 
 
