@@ -13,6 +13,7 @@ import time
 import certifi
 import socket
 import sys
+import subprocess
 
 
 class IP():
@@ -83,6 +84,21 @@ class IP():
         self.getRDNS()
         # Get passivetotal
         self.getPT()
+        # Get Geolocation
+        self.getGeo()
+
+    def getGeo(self):
+        """
+        Get the geo location from ip-api.com
+
+        """
+        command = f'curl -s -m 5 http://ip-api.com/json/' + self.ip
+        result = subprocess.run(command.split(), capture_output=True)
+        data = result.stdout.decode("utf-8").replace('\n','')
+        data = json.loads(data)
+        if data:
+            # {"status":"success","country":"Yemen","countryCode":"YE","region":"SA","regionName":"Amanat Alasimah","city":"Sanaa","zip":"","lat":15.3522,"lon":44.2095,"timezone":"Asia/Aden","isp":"Public Telecommunication Corporation","org":"YemenNet","as":"AS30873 Public Telecommunication Corporation","query":"134.35.218.63"}
+            self.geodata = data
 
     def getVT(self):
         # Get VirusTotal data
@@ -140,21 +156,22 @@ class IP():
         """
         self.reversedns = ''
         try:
-            # works with both ipv4 and ipv6
-            reverse_dns = socket.gethostbyaddr(self.ip)[0]
-            # if there's no reverse dns record for this ip, reverse_dns will be an ip.
-            if ':' in self.ip:
-                socket_type = socket.AF_INET6
-            else:
-                socket_type = socket.AF_INET
+            if self.ip:
+                # works with both ipv4 and ipv6
+                reverse_dns = socket.gethostbyaddr(self.ip)[0]
+                # if there's no reverse dns record for this ip, reverse_dns will be an ip.
+                if ':' in self.ip:
+                    socket_type = socket.AF_INET6
+                else:
+                    socket_type = socket.AF_INET
 
-            try:
-                # reverse_dns is an ip and there's no reverse dns, don't store
-                socket.inet_pton(socket_type, reverse_dns)
-                return False
-            except socket.error:
-                # all good, store it
-                self.reversedns = reverse_dns
+                try:
+                    # reverse_dns is an ip and there's no reverse dns, don't store
+                    socket.inet_pton(socket_type, reverse_dns)
+                    return False
+                except socket.error:
+                    # all good, store it
+                    self.reversedns = reverse_dns
         except (socket.gaierror, socket.herror, OSError):
             # not an ip or multicast, can't get the reverse dns record of it
             return False
@@ -271,6 +288,125 @@ class IP():
         except json.decoder.JSONDecodeError:
             self.processedptdata = None
 
+    def get_json(self):
+        """
+        Get a json version
+        """
+        data = {}
+        data['ip'] = self.ip
+
+        try:
+            data['country'] = self.processedvtdata["country"]
+        except KeyError:
+            data['country'] = 'None'
+        try:
+            data['as'] = self.processedvtdata["as_owner"]
+        except KeyError:
+            data['as'] = 'None'
+        try:
+            data['rdns'] = self.processedvtdata["self.reversedns"]
+        except KeyError:
+            data['rdns'] = 'None'
+
+        # Print geodata
+        #{"status":"success","country":"Yemen","countryCode":"YE","region":"SA","regionName":"Amanat Alasimah","city":"Sanaa","zip":"","lat":15.3522,"lon":44.2095,"timezone":"Asia/Aden","isp":"Public Telecommunication Corporation","org":"YemenNet","as":"AS30873 Public Telecommunication Corporation","query":"134.35.218.63"}
+        if self.geodata:
+            data['geodata'] = self.geodata
+        
+        # Print vt resolutions. Is a list
+        data['vt'] = {}
+        try:
+            if self.processedvtdata['resolutions'] != 'None':
+                data['vt']['resolutions'] = []
+                for count, resolution_tuple in enumerate(self.processedvtdata['resolutions']):
+                    if count >= self.amount_to_print:
+                        break
+                    temp = {}
+                    temp['date'] = resolution_tuple[0]
+                    temp['domain'] = resolution_tuple[1]
+                    data['vt']['resolutions'].append(temp)
+        except KeyError:
+            pass
+
+        # Print vt urls. Is a list
+        try:
+            if self.processedvtdata['detected_urls'] != 'None':
+                data['vt']['detected_urls'] = []
+                for count, url_tuple in enumerate(self.processedvtdata['detected_urls']):
+                    if count >= self.amount_to_print:
+                        break
+                    temp = {}
+                    temp['date'] = url_tuple[0]
+                    temp['url'] = url_tuple[1][0]
+                    temp['detections'] = str(url_tuple[1][1]) + '/' + str(url_tuple[1][2])
+                    data['vt']['detected_urls'].append(temp)
+        except KeyError:
+            pass
+
+
+        # Print vt detected communicating samples. Is a list
+        try:
+            if self.processedvtdata['detected_communicating_samples'] != 'None':
+                data['vt']['detected_communicating_samples'] = []
+                for count, communcating_tuple in enumerate(self.processedvtdata['detected_communicating_samples']):
+                    if count >= self.amount_to_print:
+                        break
+                    temp = {}
+                    temp['date'] = communcating_tuple[0]
+                    temp['detections'] = str(communcating_tuple[1][0]) + '/' + str(communcating_tuple[1][1])
+                    temp['sha256'] = communcating_tuple[1][2]
+                    data['vt']['detected_communicating_samples'].append(temp)
+        except AttributeError:
+            pass
+
+        # Print vt detected downloaded samples. Is a list
+        try:
+            if self.processedvtdata['detected_downloaded_samples'] != 'None':
+                data['vt']['detected_downloaded_samples'] = []
+                for count, detected_tuple in enumerate(self.processedvtdata['detected_downloaded_samples']):
+                    if count >= self.amount_to_print:
+                        break
+                    temp = {}
+                    temp['date'] = detected_tuple[0]
+                    temp['detections'] = str(detected_tuple[1][0]) + '/' + str(detected_tuple[1][1])
+                    temp['sha256'] = detected_tuple[1][2]
+                    data['vt']['detected_downloaded_samples'].append(temp)
+        except AttributeError:
+            pass
+
+        # Print vt referrer downloaded samples. Is a list
+        try:
+            if self.processedvtdata['detected_referrer_samples'] != 'None':
+                data['vt']['detected_referrer_samples'] = []
+                for count, referrer_tuple in enumerate(self.processedvtdata['detected_referrer_samples']):
+                    if count >= self.amount_to_print:
+                        break
+                    temp = {}
+                    temp['sha256'] = referrer_tuple[0]
+                    temp['detections'] = str(referrer_tuple[1][0]) + '/' + str(referrer_tuple[1][1])
+                    data['vt']['detected_referrer_samples'].append(temp)
+        except AttributeError:
+            pass
+
+        # Print pt data
+        data['pt'] = {}
+        if self.processedptdata:
+            count = 0
+            data['pt']['passive_dns'] = []
+            for result in self.processedptdata_results:
+                if count >= self.amount_to_print:
+                    break
+                temp = {}
+                temp['lastseen'] = result[0]
+                temp['firstseen'] = result[1][0]
+                temp['hostname'] = result[1][1]
+                data['pt']['passive_dns'].append(temp)
+                count += 1
+
+        data = json.dumps(data)
+        return data
+
+
     def __repr__(self):
         """
         Print the object
@@ -290,6 +426,20 @@ class IP():
         except AttributeError:
             pass
         output += '\n'
+
+        # Print geodata
+        #{"status":"success","country":"Yemen","countryCode":"YE","region":"SA","regionName":"Amanat Alasimah","city":"Sanaa","zip":"","lat":15.3522,"lon":44.2095,"timezone":"Asia/Aden","isp":"Public Telecommunication Corporation","org":"YemenNet","as":"AS30873 Public Telecommunication Corporation","query":"134.35.218.63"}
+        if self.geodata:
+            output += f'GeoIP Data\n'
+            output += f'\tCountry: {self.geodata["country"]} ({self.geodata["countryCode"]})\n'
+            output += f'\tRegionName: {self.geodata["regionName"]} {self.geodata["region"]}\n'
+            output += f'\tCity: {self.geodata["city"]}\n'
+            output += f'\tLat: {self.geodata["lat"]}\n'
+            output += f'\tLon: {self.geodata["lon"]}\n'
+            output += f'\tTZ: {self.geodata["timezone"]}\n'
+            output += f'\tisp: {self.geodata["isp"]}\n'
+            output += f'\tOrg: {self.geodata["org"]}\n'
+            output += f'\tAS: {self.geodata["as"]}\n'
         
         # Print vt resolutions. Is a list
         try:
@@ -357,12 +507,13 @@ class IP():
                     break
                 count += 1
 
+
         return output
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog="Stratosphere script to enrich an IP address with metadata.")
-    parser.add_argument('-o', dest='output', help='Output a log file. Json', action='store_true', required=False)
+    parser.add_argument('-o', dest='output', help='Output a log file. Json', type=str, required=False)
     parser.add_argument('-v', dest='verbosity', help='Verbosity level.', default=1, required=False, type=int)
     parser.add_argument('-i', dest='ip', help='IP to enrich.', default=1, required=True, type=str)
     parser.add_argument('-m', dest='amount_to_print', help='How many lines to print per catetory max.', default=10, required=False, type=int)
@@ -389,7 +540,18 @@ if __name__ == '__main__':
     if args.verbosity > 0:
         print('[+] Getting the PassiveTotal data')
     ipobj.getPT()
+    # Get GeoLocation
+    if args.verbosity > 0:
+        print('[+] Getting the Geolocation data')
+    ipobj.getGeo()
+    # Get PassiveTotal blacklist
+    if args.verbosity > 0:
+        print('[+] Getting the PassiveTotal Blacklist')
 
-    print()
-    print(ipobj)
-    
+    if args.output:
+        with open(args.output, 'w+') as f:
+            f.write(ipobj.get_json())
+    else:
+        print()
+        print(ipobj)
+
