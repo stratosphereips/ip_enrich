@@ -100,6 +100,8 @@ class IP():
         self.getPT()
         # Get Geolocation
         self.getGeo()
+        # Get Shodan
+        self.getShodan()
 
     def getGeo(self):
         """
