@@ -22,11 +22,12 @@ class IP():
     """
     Class to manage all the IP data
     """
-    def __init__(self, ip, amount_to_print=10, verbose=10):
+    def __init__(self, ip, amount_to_print=10, verbose=10, labelfile=''):
         self.ip = ip
         self.amount_to_print = amount_to_print
         self.vtkey = None
         self.data = []
+        self.labelfile = labelfile
         self.http = urllib3.PoolManager(cert_reqs="CERT_REQUIRED", ca_certs=certifi.where())
         # Create the DB
         self.create_folder()
@@ -352,6 +353,18 @@ class IP():
         except json.decoder.JSONDecodeError:
             self.processedptdata = None
 
+    def getExpert(self):
+        """
+        Get Expert data
+        """
+        command = f'grep ' + self.ip + ' ' + self.labelfile
+        result = subprocess.run(command.split(), capture_output=True)
+        try:
+            ip, label, verolabel = result.stdout.decode("utf-8").replace('\n','').split(',')
+        except ValueError:
+            label = ''
+        self.expertlabel = label
+
     def get_json(self):
         """
         Get a json version
@@ -371,6 +384,10 @@ class IP():
             data['rdns'] = self.processedvtdata["self.reversedns"]
         except KeyError:
             data['rdns'] = 'None'
+        try:
+            data['label'] = self.expertlabel
+        except AttributeError:
+            data['label'] = ''
 
         # geodata
         #{"status":"success","country":"Yemen","countryCode":"YE","region":"SA","regionName":"Amanat Alasimah","city":"Sanaa","zip":"","lat":15.3522,"lon":44.2095,"timezone":"Asia/Aden","isp":"Public Telecommunication Corporation","org":"YemenNet","as":"AS30873 Public Telecommunication Corporation","query":"134.35.218.63"}
@@ -495,6 +512,11 @@ class IP():
             output += f'RDNS: {self.reversedns}. '
         except AttributeError:
             pass
+        try:
+            output += f'Label: {self.expertlabel}. '
+        except KeyError:
+            pass
+
         output += '\n'
 
         # Print geodata
@@ -598,12 +620,13 @@ if __name__ == '__main__':
     parser.add_argument('-v', dest='verbosity', help='Verbosity level.', default=1, required=False, type=int)
     parser.add_argument('-i', dest='ip', help='IP to enrich.', default=1, required=True, type=str)
     parser.add_argument('-m', dest='amount_to_print', help='How many lines to print per catetory max.', default=10, required=False, type=int)
+    parser.add_argument('-e', dest='expert_labels', help='CSV file with the labels of the expert for each IP. Format IP,label', required=False, type=str)
 
     args = parser.parse_args()
 
     # Check if is a real ip or not
     ipaddress = args.ip
-    ipobj = IP(ipaddress, args.amount_to_print, args.verbosity)
+    ipobj = IP(ipaddress, args.amount_to_print, args.verbosity, labelfile=args.expert_labels)
 
     # Contact VT and get data
     if args.verbosity > 0:
@@ -632,6 +655,10 @@ if __name__ == '__main__':
     if args.verbosity > 0:
         print('[+] Getting the Shodan data')
     ipobj.getShodan()
+    if args.expert_labels:
+        if args.verbosity > 0:
+            print('[+] Getting the Expert data')
+        ipobj.getExpert()
 
     if args.output:
         with open(args.output, 'w+') as f:
