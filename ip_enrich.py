@@ -514,7 +514,7 @@ class IP():
             pass
         try:
             output += f'Label: {self.expertlabel}. '
-        except KeyError:
+        except (KeyError, AttributeError):
             pass
 
         output += '\n'
@@ -523,7 +523,10 @@ class IP():
         #{"status":"success","country":"Yemen","countryCode":"YE","region":"SA","regionName":"Amanat Alasimah","city":"Sanaa","zip":"","lat":15.3522,"lon":44.2095,"timezone":"Asia/Aden","isp":"Public Telecommunication Corporation","org":"YemenNet","as":"AS30873 Public Telecommunication Corporation","query":"134.35.218.63"}
         if self.geodata:
             output += f'GeoIP Data\n'
-            output += f'\tCountry: {self.geodata["country"]} ({self.geodata["countryCode"]})\n'
+            try:
+                output += f'\tCountry: {self.geodata["country"]} ({self.geodata["countryCode"]})\n'
+            except KeyError:
+                output += f'\tCountry: Unkown (Unkown)\n'
             output += f'\tRegionName: {self.geodata["regionName"]} {self.geodata["region"]}\n'
             output += f'\tCity: {self.geodata["city"]}\n'
             output += f'\tLat: {self.geodata["lat"]}\n'
