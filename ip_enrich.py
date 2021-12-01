@@ -346,10 +346,14 @@ class IP():
             # Sort and reverse the keys
             # Store the samples in our dictionary so we can sort them
             temp_dict = {}
-            for pt_results in self.processedptdata['results']:
-                temp_dict[pt_results['lastSeen']] = [pt_results['firstSeen'], pt_results['resolve'], pt_results['collected']]
-            # Sort them by datetime and convert to list
-            self.processedptdata_results = sorted(temp_dict.items(), reverse=True)
+            try:
+                for pt_results in self.processedptdata['results']:
+                    temp_dict[pt_results['lastSeen']] = [pt_results['firstSeen'], pt_results['resolve'], pt_results['collected']]
+                # Sort them by datetime and convert to list
+                self.processedptdata_results = sorted(temp_dict.items(), reverse=True)
+            except KeyError as e:
+                print(f'Error in getPT: {e}')
+                return False
         except json.decoder.JSONDecodeError:
             self.processedptdata = None
 
@@ -501,7 +505,10 @@ class IP():
         pp = pprint.PrettyPrinter(width=60, compact=True)
         output = f'IP: {self.ip}. '
         try:
-            output += f'Country: {self.processedvtdata["country"]}. '
+            emoji = ''
+            if self.processedvtdata["country"] == 'US':
+                emoji = "🇺🇸"
+            output += f'Country: {self.processedvtdata["country"]} {emoji} . '
         except AttributeError:
             pass
         try:
@@ -524,10 +531,23 @@ class IP():
         if self.geodata:
             output += f'GeoIP Data\n'
             try:
-                output += f'\tCountry: {self.geodata["country"]} ({self.geodata["countryCode"]})\n'
+                country = self.geodata["country"]
             except KeyError:
-                output += f'\tCountry: Unkown (Unkown)\n'
-            output += f'\tRegionName: {self.geodata["regionName"]} {self.geodata["region"]}\n'
+                country = 'Unknown'
+            try:
+                countrycode = self.geodata["countryCode"]
+            except KeyError:
+                countrycode = 'Unknown'
+            output += f'\tCountry: {country} ({countrycode})\n'
+            try:
+                regionname = self.geodata["regionName"]
+            except KeyError:
+                regionname = 'Unknown'
+            try:
+                region = self.geodata["region"]
+            except KeyError:
+                region = 'Unknown'
+            output += f'\tRegionName: {regionname} {region}\n'
             output += f'\tCity: {self.geodata["city"]}\n'
             output += f'\tLat: {self.geodata["lat"]}\n'
             output += f'\tLon: {self.geodata["lon"]}\n'
@@ -593,14 +613,17 @@ class IP():
 
         # Print pt data
         if self.processedptdata:
-            count = 0
-            output += f'PassiveTotal Data (top {self.amount_to_print}, sorted by lastSeen). '
-            output += f'\tFirst Seen: {self.processedptdata["firstSeen"]}. Last Seen: {self.processedptdata["lastSeen"]}. Records: {self.processedptdata["totalRecords"]}\n'
-            for result in self.processedptdata_results:
-                output += f'\tLastSeen: {result[0]}. FirstSeen: {result[1][0]}. Hostname: {result[1][1]}. \n'
-                if count >= self.amount_to_print:
-                    break
-                count += 1
+            try:
+                count = 0
+                output += f'PassiveTotal Data (top {self.amount_to_print}, sorted by lastSeen). '
+                output += f'\tFirst Seen: {self.processedptdata["firstSeen"]}. Last Seen: {self.processedptdata["lastSeen"]}. Records: {self.processedptdata["totalRecords"]}\n'
+                for result in self.processedptdata_results:
+                    output += f'\tLastSeen: {result[0]}. FirstSeen: {result[1][0]}. Hostname: {result[1][1]}. \n'
+                    if count >= self.amount_to_print:
+                        break
+                    count += 1
+            except KeyError as e:
+                print(f'Error {e}')
 
         # Pring shodan data
         if self.shodandata:
