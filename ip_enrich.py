@@ -52,7 +52,7 @@ class IP():
         except FileNotFoundError:
             print("The file with API keys of Shodan could not be loaded.")
             print("Create the file ~/.ip_enrich/shodan_credentials, and add the API string.")
-            self.vtapi = False
+            self.shodanapi = False
             # It may be possible to use VT without credentials, not impemented yet
             sys.exit(-1)
 
