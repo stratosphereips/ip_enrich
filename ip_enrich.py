@@ -162,8 +162,7 @@ class IP():
                     print(f'VT API returned an unexpected code: {str(response.status)}. Message: {message}')
 
             # report that API limit is reached, wait one minute and try again
-            print("Status code is " + str(response.status) + " at " + str(time.asctime()) + ", query id: " + str(
-                self.counter), 0,2)
+            print("Status code is " + str(response.status) + " at " + str(time.asctime()))
             # return empty dict because api call isn't successful
             data = {}
         else:
