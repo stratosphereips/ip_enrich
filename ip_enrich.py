@@ -121,6 +121,9 @@ class IP():
         if data:
             # {"status":"success","country":"Yemen","countryCode":"YE","region":"SA","regionName":"Amanat Alasimah","city":"Sanaa","zip":"","lat":15.3522,"lon":44.2095,"timezone":"Asia/Aden","isp":"Public Telecommunication Corporation","org":"YemenNet","as":"AS30873 Public Telecommunication Corporation","query":"134.35.218.63"}
             self.geodata = data
+        else:
+            self.geodata = None
+            
 
     def getVT(self):
         # Get VirusTotal data
@@ -135,7 +138,7 @@ class IP():
                 response = self.http.request("GET", self.vturl, fields=params)
                 break
             except urllib3.exceptions.MaxRetryError:
-                self.print("Network is not available, waiting 10s")
+                print("Network is not available, waiting 10s")
                 time.sleep(10)
 
         if response.status != 200:
@@ -147,7 +150,7 @@ class IP():
             elif response.status == 403:
                 # don't add to the api call queue because the user will have to restart slips anyway
                 # to add a correct API key and the queue wil be erased
-                self.print("Please check that your API key is correct.")
+                print("Please check that your API key is correct.")
             else:
                 # if the query was unsuccessful but it is not caused by API limit, abort (this is some unknown error)
                 # X-Api-Message is a comprehensive error description, but it is not always present
@@ -159,7 +162,7 @@ class IP():
                     print(f'VT API returned an unexpected code: {str(response.status)}. Message: {message}')
 
             # report that API limit is reached, wait one minute and try again
-            self.print("Status code is " + str(response.status) + " at " + str(time.asctime()) + ", query id: " + str(
+            print("Status code is " + str(response.status) + " at " + str(time.asctime()) + ", query id: " + str(
                 self.counter), 0,2)
             # return empty dict because api call isn't successful
             data = {}
@@ -687,6 +690,8 @@ if __name__ == '__main__':
         ipobj.getExpert()
 
     if args.output:
+        if args.verbosity > 0:
+            print(f'[+] Creating output file {args.output}')
         with open(args.output, 'w+') as f:
             f.write(ipobj.get_json())
     else:
