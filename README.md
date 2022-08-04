@@ -1,7 +1,10 @@
-# Stratosphere IP enrich
-Get an IP address and enrich it with metadata and IoC
+![image](https://user-images.githubusercontent.com/2458879/152699747-f5ebfe48-662b-4fd0-b4d5-424111984452.png)
 
-You need API keys for VirusTotal and PassiveTotal (RiskIQ)
+# Stratosphere IP Enrich
+
+IP_Enrich is a tool that given a IP address, it will query multiple security threat intelligence services and enrich the information of the IP with metadata and all the available information on it.
+
+*Note: certain services require adding API keys, like VirusTotal and PassiveTotal (RiskIQ).*
 
 
 ## Features
@@ -10,11 +13,23 @@ You need API keys for VirusTotal and PassiveTotal (RiskIQ)
 - Extract PassiveTotal data
 - Extract GeoIP data
 - Extract Shodan data
-- Outputs in a json file
+- Outputs in a JSON format
 - Outputs a nice printed summary
-- Can be imported by other pythons
+- Can be imported as a module
 
-## How to use from your python
+
+## Roadmap
+
+The following are a list of features that we aim to incorporate to IP Enrich in the future:
+
+- Implement https://api.riskiq.net/api/ssl/
+- Implement https://api.riskiq.net/api/blacklist/
+
+## How to Run
+
+### As a module from another Python
+
+IP Enrich can be imported from another Python as a module. An example of how to do it is shown below:
 
 ```
 #!/usr/bin/env python3
@@ -27,7 +42,9 @@ ipobj.getAll()
 print(ipobj)
 ```
 
-## Example run in command line
+### Standalone from the command line
+
+IP Enrich can be used directly from the command line as an independent tool. An example is shown below:
 
 ```
 ./ip_enrich.py -i 1.1.1.1
@@ -125,7 +142,8 @@ Shodan Data. 	Tags: []
 
 ```
 
-## Example json output
+### Example with JSON output
+
 ```
 ✗ ./ip_enrich.py -i 1.1.1.1 -o 1.1.1.1.json
 [+] Getting the VirusTotal data
@@ -816,9 +834,3 @@ Shodan Data. 	Tags: []
 }
 
 ```
-
-
-## TODO
-
-- Implement https://api.riskiq.net/api/ssl/
-- Implement https://api.riskiq.net/api/blacklist/
