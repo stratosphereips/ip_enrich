@@ -550,13 +550,34 @@ class IP():
             except KeyError:
                 region = 'Unknown'
             output += f'\tRegionName: {regionname} {region}\n'
-            output += f'\tCity: {self.geodata["city"]}\n'
-            output += f'\tLat: {self.geodata["lat"]}\n'
-            output += f'\tLon: {self.geodata["lon"]}\n'
-            output += f'\tTZ: {self.geodata["timezone"]}\n'
-            output += f'\tisp: {self.geodata["isp"]}\n'
-            output += f'\tOrg: {self.geodata["org"]}\n'
-            output += f'\tAS: {self.geodata["as"]}\n'
+            try:
+                output += f'\tCity: {self.geodata["city"]}\n'
+            except KeyError:
+                output += f'\tCity: Unknown\n'
+            try:
+                output += f'\tLat: {self.geodata["lat"]}\n'
+            except KeyError:
+                output += f'\tLat: Unknown\n'
+            try:
+                output += f'\tLon: {self.geodata["lon"]}\n'
+            except KeyError:
+                output += f'\tLon: Unknown\n'
+            try:
+                output += f'\tTZ: {self.geodata["timezone"]}\n'
+            except KeyError:
+                output += f'\tTZ: Unknown\n'
+            try:
+                output += f'\tisp: {self.geodata["isp"]}\n'
+            except KeyError:
+                output += f'\tisp: Unknown\n'
+            try:
+                output += f'\tOrg: {self.geodata["org"]}\n'
+            except KeyError:
+                output += f'\tOrg: Unknown\n'
+            try:
+                output += f'\tAS: {self.geodata["as"]}\n'
+            except KeyError:
+                output += f'\tAS: Unknown\n'
         
         # Print vt resolutions. Is a list
         try:
