@@ -26,6 +26,9 @@ class IP():
         self.ip = ip
         self.amount_to_print = amount_to_print
         self.vtkey = None
+        self.vtdata = ""
+        self.processedptdata = ""
+        self.shodandata = ""
         self.data = []
         self.labelfile = labelfile
         self.http = urllib3.PoolManager(cert_reqs="CERT_REQUIRED", ca_certs=certifi.where())
@@ -37,11 +40,11 @@ class IP():
                 self.vtkey = f.read(64)
             self.vtapi = True
         except FileNotFoundError:
-            print("The file with API keys of VirusTotal could not be loaded.")
-            print("Create the file ~/.ip_enrich/vt_credentials, and add the API string.")
+            # print("The file with API keys of VirusTotal could not be loaded.")
+            print("If you want to use VT, create the file ~/.ip_enrich/vt_credentials, and add the API string.")
             self.vtapi = False
             # It may be possible to use VT without credentials, not impemented yet
-            sys.exit(-1)
+            # sys.exit(-1)
 
         try:
             file = os.path.expanduser("~") + '/.ip_enrich/shodan_credentials'
@@ -50,11 +53,11 @@ class IP():
                 self.shodanobj = shodan.Shodan(key)
             self.shodanapi = True
         except FileNotFoundError:
-            print("The file with API keys of Shodan could not be loaded.")
-            print("Create the file ~/.ip_enrich/shodan_credentials, and add the API string.")
+            # print("The file with API keys of Shodan could not be loaded.")
+            print("If you want to use Shodan, create the file ~/.ip_enrich/shodan_credentials, and add the API string.")
             self.shodanapi = False
             # It may be possible to use VT without credentials, not impemented yet
-            sys.exit(-1)
+            # sys.exit(-1)
 
         try:
             file = os.path.expanduser("~") + '/.ip_enrich/pt_credentials'
@@ -67,14 +70,13 @@ class IP():
                     self.ptkey = ''
             self.ptapi = True
         except FileNotFoundError:
-            print("The file with API keys of PassiveTotal could not be loaded.")
-            print("Create a file in ~/.ip_enrich/pt_credentials, and add the following data.")
-            print('\tRiskIQ_email = <email>')
-            print('\tRiskIQ_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-            print('Go here for a free account https://community.riskiq.com/login')
+            # print("The file with API keys of PassiveTotal (RiskIQ) could not be loaded.")
+            print("If you want to use PassiveTotal, create a file in ~/.ip_enrich/pt_credentials, and add the following data.")
+            # print('\tRiskIQ_email = <email>')
+            # print('\tRiskIQ_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
             self.ptapi = False
             # It is not possible to use PT without credentials
-            sys.exit(-1)
+            # sys.exit(-1)
 
     def create_folder(self):
         """
@@ -682,6 +684,7 @@ if __name__ == '__main__':
     ipobj = IP(ipaddress, args.amount_to_print, args.verbosity, labelfile=args.expert_labels)
 
     # Contact VT and get data
+    print('\nStratosphere ip_enrich tool')
     if args.verbosity > 0:
         print('[+] Getting the VirusTotal data')
     ipobj.getVT()
