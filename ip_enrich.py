@@ -59,8 +59,12 @@ class IP():
         try:
             file = os.path.expanduser("~") + '/.ip_enrich/pt_credentials'
             with open(file, "r") as f:
-                self.ptuser = f.readline().split(' =')[1].strip()
-                self.ptkey = f.readline().split(' =')[1].strip()
+                try:
+                    self.ptuser = f.readline().split(' =')[1].strip()
+                    self.ptkey = f.readline().split(' =')[1].strip()
+                except IndexError:
+                    self.ptuser = ''
+                    self.ptkey = ''
             self.ptapi = True
         except FileNotFoundError:
             print("The file with API keys of PassiveTotal could not be loaded.")
