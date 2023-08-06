@@ -25,22 +25,40 @@ The following are a list of features that we aim to incorporate to IP Enrich in 
 - Implement https://api.riskiq.net/api/ssl/
 - Implement https://api.riskiq.net/api/blacklist/
 
+
+## Install
+
+First download the code
+
+```
+git clone https://github.com/stratosphereips/ip_enrich.git
+cd ip_enrich
+python3 ./ip_enrich.py -h
+```
+Second, install shodan python library
+
+```
+python -m pip install -r requirements.txt
+```
+
+Now it is ready to run without any API, but if you have any API (even free) from VirusTotal, RiskIQ (Passive Total), or Shodan, put them in their corresponding files. If not it will still run, but you will miss a lot of extra data. We suggest you register for those services and get a free API.
+
+The credentials files are in your home folder
+```
+~/.ip_enrich/shodan_credentials
+~/.ip_enrich/vt_credentials
+~/.ip_enrich/pt_credentials
+```
+
+The format of the pt_credentials is 
+
+```
+RiskIQ_email = <email>
+RiskIQ_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+
 ## How to Run
-
-### As a module from another Python
-
-IP Enrich can be imported from another Python as a module. An example of how to do it is shown below:
-
-```
-#!/usr/bin/env python3
-import ip_enrich
-
-ip = '1.1.1.1'
-
-ipobj = ip_enrich.IP(ip, 10)
-ipobj.getAll()
-print(ipobj)
-```
 
 ### Standalone from the command line
 
@@ -139,7 +157,21 @@ Shodan Data. 	Tags: []
 	Org APNIC and Cloudflare DNS Resolver project
 	Last update 2021-11-05T17:58:53.742055
 	Ports [80, 443, 53]
+```
 
+### As a module from another Python
+
+IP Enrich can be imported from another Python as a module. An example of how to do it is shown below:
+
+```
+#!/usr/bin/env python3
+import ip_enrich
+
+ip = '1.1.1.1'
+
+ipobj = ip_enrich.IP(ip, 10)
+ipobj.getAll()
+print(ipobj)
 ```
 
 ### Example with JSON output
